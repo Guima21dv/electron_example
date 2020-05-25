@@ -1,11 +1,13 @@
-const {app, BrowserWindow} = require('electron')
+const { app, BrowserWindow, globalShortcut } = require('electron')
+const config = require('./config')
 
 let win
 
-function createWindow(){
+function createWindow() {
     win = new BrowserWindow({
         width: 800,
         height: 600,
+        titleBarStyle: 'hiddenInset',
         webPreferences: {
             nodeIntegration: true
         },
@@ -13,19 +15,29 @@ function createWindow(){
         darkTheme: true,
     })
 
-    win.loadFile('index.html')
+    win.loadFile(config.destination)
 }
 
-app.whenReady().then(createWindow)
+function toggleDevTools() {
+    win.webContents.toggleDevTools()
+}
+
+function createShortcuts() {
+    globalShortcut.register('CmdOrCtrl+J', toggleDevTools)
+}
+
+app.whenReady()
+    .then(createWindow)
+    .then(createShortcuts)
 
 app.on('window-all-closed', () => {
-    if(process.platform !== 'darwin'){
+    if (process.platform !== 'darwin') {
         app.quit()
     }
 })
 
 app.on('activate', () => {
-    if( BrowserWindow.getAllWindows().length === 0){
+    if (BrowserWindow.getAllWindows().length === 0) {
         createWindows()
     }
 })
